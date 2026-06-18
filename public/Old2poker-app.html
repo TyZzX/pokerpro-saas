@@ -653,7 +653,7 @@ input[type=file]{cursor:pointer;padding:7px}
   </div>
 
 <!-- PAGE ÉQUITÉ -->
-  <div class="page" id="page-equity">
+  <div class="page active" id="page-equity">
     <div class="section-header">
       <div>
         <div class="title-with-help"><div class="section-title">Calculateur d'équité</div><button class="help-btn" onclick="showHelp('equity')">i</button></div>
@@ -1193,228 +1193,153 @@ input[type=file]{cursor:pointer;padding:7px}
     </div>
   </div>
 
-
-  <!-- ======================== PAGE : HUD ======================== -->
-  <div class="page" id="page-hud">
+<!-- ======================== PAGE : DASHBOARD ======================== -->
+  <div class="page active" id="page-dashboard">
     <div class="section-hd">
-      <div><div class="section-title">HUD — Statistiques Joueurs</div><div class="section-sub">Table HUD en temps réel · Recherche joueur avec stats complètes</div></div>
+      <div><div class="section-title">Dashboard</div><div class="section-sub">Vue d'ensemble de vos performances</div></div>
+      <div class="flex gap-8 flex-wrap">
+        <button class="btn btn-ghost btn-sm" onclick="loadSampleData()">📁 Charger données démo</button>
+        <button class="btn btn-jade btn-sm" onclick="showPage('import')">+ Importer des mains</button>
+      </div>
     </div>
 
-    <!-- ONGLETS -->
-    <div style="display:flex;gap:3px;background:var(--bg3);border-radius:8px;padding:3px;margin-bottom:18px;width:fit-content">
-      <button onclick="switchHUDTab('table',this)" id="hud-tab-table" style="padding:9px 20px;border-radius:6px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .15s;background:var(--jade);color:#06090F">Table HUD</button>
-      <button onclick="switchHUDTab('search',this)" id="hud-tab-search" style="padding:9px 20px;border-radius:6px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .15s;background:transparent;color:var(--text2)">🔍 Recherche joueur</button>
+    <!-- KPI ROW -->
+    <div class="grid-4 mb-16">
+      <div class="stat-box" style="--accent:var(--jade)">
+        <div class="stat-label">Mains jouées<button onclick="showHUDInfo('hands')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;margin-left:4px">ⓘ</button></div>
+        <div class="stat-value jade" id="kpi-hands">0</div>
+        <div class="stat-sub">total importées</div>
+      </div>
+      <div class="stat-box" style="--accent:var(--gold)">
+        <div class="stat-label">Win Rate<button onclick="showHUDInfo('winrate')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;margin-left:4px">ⓘ</button></div>
+        <div class="stat-value" id="kpi-winrate" style="color:var(--jade)">—</div>
+        <div class="stat-sub">bb/100 mains</div>
+        <div class="stat-trend" id="kpi-winrate-trend"></div>
+      </div>
+      <div class="stat-box" style="--accent:var(--blue)">
+        <div class="stat-label">VPIP<button onclick="showHUDInfo('vpip')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;margin-left:4px">ⓘ</button></div>
+        <div class="stat-value blue" id="kpi-vpip">—</div>
+        <div class="stat-sub">% mains jouées volontairement</div>
+      </div>
+      <div class="stat-box" style="--accent:var(--purple)">
+        <div class="stat-label">PFR<button onclick="showHUDInfo('pfr')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;margin-left:4px">ⓘ</button></div>
+        <div class="stat-value purple" id="kpi-pfr">—</div>
+        <div class="stat-sub">% relances preflop</div>
+      </div>
     </div>
 
-    <!-- ===================== ONGLET : TABLE HUD ===================== -->
-    <div id="hud-panel-table">
-      <!-- LÉGENDE -->
-      <div class="card mb-16">
-        <div class="card-title">Légende des couleurs HUD</div>
-        <div class="flex-wrap" style="gap:12px">
-          <div class="flex gap-6"><span class="hud-stat hud-green">23%</span><span style="font-size:11px;color:var(--text2)">Valeur optimale</span></div>
-          <div class="flex gap-6"><span class="hud-stat hud-gold">38%</span><span style="font-size:11px;color:var(--text2)">Valeur à surveiller</span></div>
-          <div class="flex gap-6"><span class="hud-stat hud-red">62%</span><span style="font-size:11px;color:var(--text2)">Valeur problématique</span></div>
-          <div class="flex gap-6"><span class="hud-stat hud-blue">18%</span><span style="font-size:11px;color:var(--text2)">Valeur statistique neutre</span></div>
-          <div class="flex gap-6"><span class="hud-stat hud-muted">—</span><span style="font-size:11px;color:var(--text2)">Données insuffisantes</span></div>
-        </div>
-      </div>
-
-      <!-- TABLE HUD -->
-      <div class="card mb-16">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-          <div class="card-title" style="margin-bottom:0">Table HUD — Mains actuelle</div>
-          <div class="flex gap-8">
-            <input type="text" id="hud-player-name" placeholder="Nom du joueur" style="width:160px">
-            <button class="btn btn-jade btn-sm" onclick="addHUDPlayer()">+ Ajouter</button>
-            <button class="btn btn-ghost btn-sm" onclick="addHUDPlayerDemo()">Démo</button>
-          </div>
-        </div>
-        <div style="overflow-x:auto">
-          <table class="hud-table" id="hud-table">
-            <thead>
-              <tr>
-                <th>Joueur</th>
-                <th><span onclick="showHUDInfo('vpip')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">VPIP ⓘ</span></th>
-                <th><span onclick="showHUDInfo('pfr')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">PFR ⓘ</span></th>
-                <th><span onclick="showHUDInfo('3bet')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">3-bet% ⓘ</span></th>
-                <th><span onclick="showHUDInfo('af')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">AF ⓘ</span></th>
-                <th><span onclick="showHUDInfo('cbet')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">C-bet% ⓘ</span></th>
-                <th><span onclick="showHUDInfo('wtsd')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">WTSD ⓘ</span></th>
-                <th>Mains</th>
-                <th>Profil</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="hud-tbody">
-              <tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text3)">Ajoutez des joueurs ou cliquez "Démo"</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- PROFILS -->
+    <div class="grid-2 mb-16">
+      <!-- COURBE DE GAINS -->
       <div class="card">
-        <div class="card-title">Profils de joueurs — Guide de lecture</div>
-        <div class="grid-4">
-          <div style="background:var(--bg3);border-radius:6px;padding:12px;border-left:3px solid var(--green)">
-            <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px">🦁 TAG (Tight Aggr.)</div>
-            <div style="font-size:10px;color:var(--text2);line-height:1.6">VPIP 15-25% · PFR 12-20% · 3b 4-8%<br>Joueur solide difficile à exploiter.<br><strong>Stratégie :</strong> Éviter les gros pots sans bonnes mains.</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:6px;padding:12px;border-left:3px solid var(--red)">
-            <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px">🐟 Fish (Loose Passif)</div>
-            <div style="font-size:10px;color:var(--text2);line-height:1.6">VPIP 40%+ · PFR &lt;10% · AF &lt;1.5<br>Joue trop de mains, appelle trop.<br><strong>Stratégie :</strong> Valuebet large, pas de bluff.</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:6px;padding:12px;border-left:3px solid var(--orange)">
-            <div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:6px">🔥 LAG (Loose Aggr.)</div>
-            <div style="font-size:10px;color:var(--text2);line-height:1.6">VPIP 30-45% · PFR 20%+ · 3b 8%+<br>Agressif et large. Difficile à lire.<br><strong>Stratégie :</strong> 4-bet bluff, évitez les pièges.</div>
-          </div>
-          <div style="background:var(--bg3);border-radius:6px;padding:12px;border-left:3px solid var(--text3)">
-            <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:6px">🐢 Nit (Ultra-tight)</div>
-            <div style="font-size:10px;color:var(--text2);line-height:1.6">VPIP &lt;15% · PFR &lt;12% · 3b &lt;3%<br>Joue très peu mais sûrement.<br><strong>Stratégie :</strong> Respectez sa range, volez les blindes.</div>
-          </div>
-        </div>
+        <div class="card-title">Courbe de gains (bb)</div>
+        <div class="chart-wrap"><canvas id="gainChart" role="img" aria-label="Courbe de gains"></canvas></div>
+      </div>
+      <!-- LEAKS RÉSUMÉ -->
+      <div class="card">
+        <div class="card-title">Leaks détectés</div>
+        <div id="dash-leaks-list"><div style="text-align:center;padding:30px;color:var(--text3)">Importez des mains pour détecter les leaks</div></div>
+        <div style="margin-top:10px"><button class="btn btn-ghost btn-sm btn-full" onclick="showPage('leaks')">Voir l'analyse complète →</button></div>
       </div>
     </div>
 
-    <!-- ===================== ONGLET : RECHERCHE JOUEUR ===================== -->
-    <div id="hud-panel-search" style="display:none">
-
-      <!-- GUIDE -->
-      <div style="background:linear-gradient(135deg,rgba(0,212,170,0.06),rgba(0,212,170,0.02));border:1px solid rgba(0,212,170,0.2);border-radius:10px;padding:14px;margin-bottom:16px">
-        <div style="font-size:11px;font-weight:700;color:var(--jade);margin-bottom:10px">📖 Comment voir apparaître les données d'un joueur ?</div>
-        <div class="grid-3" style="gap:10px">
-          <div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:10px">
-            <div style="font-size:16px;margin-bottom:4px">1️⃣</div>
-            <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px">Importez vos mains</div>
-            <div style="font-size:10px;color:var(--text2);line-height:1.6">Menu "Import de mains" → collez votre historique Winamax/PokerStars. Plus vous importez, plus la base est riche.</div>
-          </div>
-          <div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:10px">
-            <div style="font-size:16px;margin-bottom:4px">2️⃣</div>
-            <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px">Recherchez un pseudo</div>
-            <div style="font-size:10px;color:var(--text2);line-height:1.6">Tapez le pseudo exact et sélectionnez la room. Les stats apparaissent si ce joueur est dans vos mains importées.</div>
-          </div>
-          <div style="background:rgba(0,0,0,0.2);border-radius:8px;padding:10px">
-            <div style="font-size:16px;margin-bottom:4px">3️⃣</div>
-            <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px">Base communautaire</div>
-            <div style="font-size:10px;color:var(--text2);line-height:1.6">Les mains importées par d'autres utilisateurs enrichissent la base pour tous automatiquement.</div>
-          </div>
-        </div>
-        <div style="margin-top:10px;padding:8px 12px;background:rgba(255,184,0,0.08);border:1px solid rgba(255,184,0,0.2);border-radius:6px;font-size:11px;color:var(--gold)">
-          💡 <strong>Exporter depuis Winamax :</strong> Logiciel Winamax → Compte → Historique des mains → Exporter → Toute la période disponible
-        </div>
+    <div class="grid-3 mb-16">
+      <!-- STATS PAR POSITION -->
+      <div class="card">
+        <div class="card-title">Performance par position</div>
+        <div id="pos-table"><div style="color:var(--text3);font-size:12px;padding:10px">En attente de données…</div></div>
       </div>
-
-      <!-- FORMULAIRE RECHERCHE -->
-      <div class="card mb-16">
-        <div style="display:grid;grid-template-columns:1fr auto 130px;gap:10px;align-items:flex-end">
-          <div>
-            <label>Pseudo du joueur</label>
-            <input type="text" id="player-search-pseudo" placeholder="Ex: ElkY, DxZ_TyZzX, Villain..." onkeydown="if(event.key==='Enter') searchPlayerHUD()">
-          </div>
-          <div>
-            <label>Room</label>
-            <select id="player-search-room" style="width:auto;min-width:130px">
-              <option value="winamax">🇫🇷 Winamax</option>
-              <option value="pokerstars">♠ PokerStars</option>
-              <option value="betclic">🃏 Betclic</option>
-              <option value="pmu">🏇 PMU Poker</option>
-            </select>
-          </div>
-          <div>
-            <label style="visibility:hidden">-</label>
-            <button class="btn btn-jade btn-full" onclick="searchPlayerHUD()" id="search-player-btn">🔍 Rechercher</button>
-          </div>
-        </div>
+      <!-- DISTRIBUTION DES MAINS -->
+      <div class="card">
+        <div class="card-title">Distribution des actions</div>
+        <div class="chart-wrap-sm"><canvas id="actionChart" role="img" aria-label="Distribution actions"></canvas></div>
       </div>
-
-      <!-- RÉSULTAT -->
-      <div id="player-search-result" style="display:none">
-        <div class="grid-2" style="gap:14px">
-
-          <!-- Stats -->
-          <div class="card">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-              <div>
-                <div style="font-size:16px;font-weight:700;color:var(--text)" id="res-pseudo">—</div>
-                <div style="font-size:10px;color:var(--text3);margin-top:2px" id="res-source">—</div>
-              </div>
-              <span id="res-profile-badge" style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700"></span>
-            </div>
-
-            <!-- KPIs principaux -->
-            <div class="grid-3 mb-12" style="gap:8px">
-              <div style="background:var(--bg3);border-radius:8px;padding:10px;text-align:center">
-                <div style="font-size:20px;font-weight:700;font-family:var(--font-mono)" id="res-profit">—</div>
-                <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:3px">Gains / Pertes</div>
-                <div style="font-size:9px;color:var(--text3);margin-top:1px" id="res-profit-sub">en euros estimés</div>
-              </div>
-              <div style="background:var(--bg3);border-radius:8px;padding:10px;text-align:center">
-                <div style="font-size:20px;font-weight:700;font-family:var(--font-mono)" id="res-itm">—</div>
-                <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:3px">ITM%</div>
-                <div style="font-size:9px;color:var(--text3);margin-top:1px">In The Money</div>
-              </div>
-              <div style="background:var(--bg3);border-radius:8px;padding:10px;text-align:center">
-                <div style="font-size:20px;font-weight:700;font-family:var(--font-mono)" id="res-roi">—</div>
-                <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:3px">ROI / Winrate</div>
-                <div style="font-size:9px;color:var(--text3);margin-top:1px">bb/100 mains</div>
-              </div>
-            </div>
-
-            <!-- Stats détaillées -->
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:14px" id="res-stats-grid">
-            </div>
-
-            <!-- Liens externes -->
-            <div style="font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">🔗 Voir sur les sites externes</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap" id="res-ext-links"></div>
-          </div>
-
-          <!-- Notes Premium -->
-          <div class="card">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-              <div style="font-size:13px;font-weight:700;color:var(--text)">📝 Note privée</div>
-              <span style="background:rgba(255,184,0,.1);color:var(--gold);border:1px solid rgba(255,184,0,.2);border-radius:20px;padding:2px 8px;font-size:9px;font-weight:700">⭐ Premium</span>
-            </div>
-
-            <!-- Tags -->
-            <div style="margin-bottom:10px">
-              <label>Tag joueur</label>
-              <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px" id="tag-buttons">
-                <button onclick="selectTag('fish',this)" style="padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text3);font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font-body)">🐟 Fish</button>
-                <button onclick="selectTag('reg',this)" style="padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text3);font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font-body)">🦁 Reg</button>
-                <button onclick="selectTag('nit',this)" style="padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text3);font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font-body)">🐢 Nit</button>
-                <button onclick="selectTag('lag',this)" style="padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text3);font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font-body)">🔥 LAG</button>
-                <button onclick="selectTag('danger',this)" style="padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text3);font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font-body)">⚠️ Danger</button>
-              </div>
-            </div>
-
-            <div style="margin-bottom:10px">
-              <label>Votre note</label>
-              <textarea id="player-note-text" placeholder="Ex: Call station river, ne fold jamais ses draws, valuebet large contre lui..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:9px 11px;min-height:90px;resize:vertical;font-family:var(--font-body);outline:none;margin-top:4px;line-height:1.6"></textarea>
-            </div>
-
-            <button class="btn btn-jade btn-full" onclick="savePlayerNote()" id="save-note-btn">💾 Sauvegarder la note</button>
-
-            <!-- Notes communautaires -->
-            <div id="community-notes" style="margin-top:14px;display:none">
-              <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Notes de la communauté</div>
-              <div id="community-notes-list"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ÉTAT VIDE -->
-      <div id="player-search-empty" style="text-align:center;padding:48px;color:var(--text3)">
-        <div style="font-size:48px;margin-bottom:12px">🔍</div>
-        <div style="font-size:14px;margin-bottom:6px">Recherchez un joueur par pseudo</div>
-        <div style="font-size:12px">Entrez le pseudo exact et la room, puis cliquez Rechercher</div>
+      <!-- STATS AVANCÉES -->
+      <div class="card">
+        <div class="card-title">Stats avancées</div>
+        <div id="adv-stats"><div style="color:var(--text3);font-size:12px;padding:10px">En attente de données…</div></div>
       </div>
     </div>
   </div>
 
-<!-- ======================== PAGE : IMPORT ======================== -->
+  <!-- ======================== PAGE : HUD ======================== -->
+  <div class="page" id="page-hud">
+    <div class="section-hd">
+      <div><div class="section-title">HUD — Statistiques Joueurs</div><div class="section-sub">Cliquez sur une statistique pour l'explication</div></div>
+      <div class="flex gap-8 flex-wrap">
+        <button class="btn btn-ghost btn-sm" onclick="addHUDPlayerDemo()">+ Ajouter joueur démo</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearHUDPlayers()">Effacer tout</button>
+      </div>
+    </div>
+
+    <!-- LÉGENDE HUD -->
+    <div class="card mb-16">
+      <div class="card-title">Légende des couleurs HUD</div>
+      <div class="flex-wrap" style="gap:12px">
+        <div class="flex gap-6"><span class="hud-stat hud-green">23%</span><span style="font-size:11px;color:var(--text2)">Valeur optimale</span></div>
+        <div class="flex gap-6"><span class="hud-stat hud-gold">38%</span><span style="font-size:11px;color:var(--text2)">Valeur à surveiller</span></div>
+        <div class="flex gap-6"><span class="hud-stat hud-red">62%</span><span style="font-size:11px;color:var(--text2)">Valeur problématique</span></div>
+        <div class="flex gap-6"><span class="hud-stat hud-blue">18%</span><span style="font-size:11px;color:var(--text2)">Valeur statistique neutre</span></div>
+        <div class="flex gap-6"><span class="hud-stat hud-muted">—</span><span style="font-size:11px;color:var(--text2)">Données insuffisantes</span></div>
+      </div>
+    </div>
+
+    <!-- TABLE HUD -->
+    <div class="card mb-16">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div class="card-title" style="margin-bottom:0">Table HUD — Mains actuelle</div>
+        <div class="flex gap-8">
+          <input type="text" id="hud-player-name" placeholder="Nom du joueur" style="width:160px">
+          <button class="btn btn-jade btn-sm" onclick="addHUDPlayer()">+ Ajouter</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="hud-table" id="hud-table">
+          <thead>
+            <tr>
+              <th>Joueur</th>
+              <th><span onclick="showHUDInfo('vpip')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">VPIP ⓘ</span></th>
+              <th><span onclick="showHUDInfo('pfr')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">PFR ⓘ</span></th>
+              <th><span onclick="showHUDInfo('3bet')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">3-bet% ⓘ</span></th>
+              <th><span onclick="showHUDInfo('af')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">AF ⓘ</span></th>
+              <th><span onclick="showHUDInfo('cbet')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">C-bet% ⓘ</span></th>
+              <th><span onclick="showHUDInfo('wtsd')" style="cursor:pointer;border-bottom:1px dashed var(--text3)">WTSD ⓘ</span></th>
+              <th>Mains</th>
+              <th>Profil</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="hud-tbody">
+            <tr><td colspan="10" style="text-align:center;padding:24px;color:var(--text3)">Ajoutez des joueurs ou chargez les données démo</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROFILS TYPE -->
+    <div class="card">
+      <div class="card-title">Profils de joueurs — Guide de lecture</div>
+      <div class="grid-4">
+        <div style="background:var(--bg3);border-radius:6px;padding:12px;border-left:3px solid var(--green)">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px">🦁 TAG (Tight Aggr.)</div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6">VPIP 15-25% · PFR 12-20% · 3b 4-8%<br>Joueur solide difficile à exploiter.<br><strong>Stratégie :</strong> Éviter les gros pots sans bonnes mains.</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:6px;padding:12px;border-left:3px solid var(--red)">
+          <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px">🐟 Fish (Loose Passif)</div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6">VPIP 40%+ · PFR &lt;10% · AF &lt;1.5<br>Joue trop de mains, appelle trop.<br><strong>Stratégie :</strong> Valuebet large, pas de bluff.</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:6px;padding:12px;border-left:3px solid var(--orange)">
+          <div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:6px">🔥 LAG (Loose Aggr.)</div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6">VPIP 30-45% · PFR 20%+ · 3b 8%+<br>Agressif et large. Difficile à lire.<br><strong>Stratégie :</strong> 4-bet bluff, evitez les pièges.</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:6px;padding:12px;border-left:3px solid var(--text3)">
+          <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:6px">🐢 Nit (Ultra-tight)</div>
+          <div style="font-size:10px;color:var(--text2);line-height:1.6">VPIP &lt;15% · PFR &lt;12% · 3b &lt;3%<br>Joue très peu mais sûrement.<br><strong>Stratégie :</strong> Respectez sa range, volez les blindes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== PAGE : IMPORT ======================== -->
   <div class="page" id="page-import">
     <div class="section-hd">
       <div><div class="section-title">Import de mains</div><div class="section-sub">Winamax · PokerStars · Betclic · PMU</div></div>
@@ -2971,207 +2896,7 @@ function addHUDPlayerDemo() {
 }
 
 function removePlayer(idx) { DB.players.splice(idx, 1); renderHUDTable(); }
-
 function clearHUDPlayers() { DB.players = []; renderHUDTable(); }
-
-/* ============================================================
-   HUD TABS — Onglets Table HUD / Recherche joueur
-   ============================================================ */
-function switchHUDTab(tab, btn) {
-  document.querySelectorAll('#hud-panel-table, #hud-panel-search').forEach(p => p.style.display = 'none');
-  document.getElementById('hud-panel-' + tab).style.display = 'block';
-  document.querySelectorAll('#hud-tab-table, #hud-tab-search').forEach(b => {
-    b.style.background = 'transparent';
-    b.style.color = 'var(--text2)';
-  });
-  btn.style.background = 'var(--jade)';
-  btn.style.color = '#06090F';
-}
-
-/* ============================================================
-   RECHERCHE JOUEUR HUD
-   ============================================================ */
-let currentPlayerTag = 'neutre';
-
-function selectTag(tag, btn) {
-  currentPlayerTag = tag;
-  document.querySelectorAll('#tag-buttons button').forEach(b => {
-    b.style.background = 'transparent';
-    b.style.color = 'var(--text3)';
-    b.style.borderColor = 'var(--border2)';
-  });
-  const colors = { fish:'#FF4560', reg:'#34D399', nit:'#7A90B8', lag:'#FB923C', danger:'#FFB800', neutre:'#3A4E6A' };
-  btn.style.background = 'rgba(255,255,255,0.05)';
-  btn.style.color = colors[tag] || 'var(--jade)';
-  btn.style.borderColor = colors[tag] || 'var(--jade)';
-}
-
-function searchPlayerHUD() {
-  const pseudo = document.getElementById('player-search-pseudo').value.trim();
-  const room   = document.getElementById('player-search-room').value;
-  if (!pseudo) return;
-
-  const btn = document.getElementById('search-player-btn');
-  btn.textContent = '⏳ Recherche…';
-  btn.disabled = true;
-
-  // Cherche dans la DB locale (mains importées)
-  const hands = (window.DB && DB.hands) ? DB.hands.filter(h =>
-    h.raw && h.raw.toLowerCase().includes(pseudo.toLowerCase())
-  ) : [];
-
-  // Simule un délai pour l'UX
-  setTimeout(() => {
-    btn.textContent = '🔍 Rechercher';
-    btn.disabled = false;
-
-    document.getElementById('player-search-empty').style.display = 'none';
-    document.getElementById('player-search-result').style.display = 'block';
-
-    // Calcule les stats depuis les mains locales
-    const stats = computePlayerStats(hands, pseudo);
-    displayPlayerResult(pseudo, room, stats, hands.length);
-  }, 600);
-}
-
-function computePlayerStats(hands, pseudo) {
-  if (!hands.length) return null;
-  const total   = hands.length;
-  const vpip    = hands.filter(h => ['raise','call','limp'].includes(h.pfAction||'')).length;
-  const pfr     = hands.filter(h => h.pfAction === 'raise').length;
-  const sawFlop = hands.filter(h => h.streets && h.streets.flop).length;
-  const wins    = hands.filter(h => (h.result||0) > 0).length;
-  const totalBB = hands.reduce((s,h) => s + (h.result||0), 0);
-  const itm     = hands.filter(h => (h.result||0) > 0 && h.streets && h.streets.river).length;
-  const threebet = hands.filter(h => h.pfAction === '3bet').length;
-  const cbet    = hands.filter(h => h.cbet).length;
-  const cbetOpp = hands.filter(h => h.pfAction==='raise' && h.streets&&h.streets.flop).length;
-  return {
-    hands: total,
-    vpip:  parseFloat((vpip/total*100).toFixed(1)),
-    pfr:   parseFloat((pfr/total*100).toFixed(1)),
-    winrate: parseFloat((totalBB/total*100).toFixed(1)),
-    sawFlop: parseFloat((sawFlop/total*100).toFixed(1)),
-    winPct: parseFloat((wins/total*100).toFixed(1)),
-    totalBB: parseFloat(totalBB.toFixed(2)),
-    itm:   sawFlop ? parseFloat((itm/sawFlop*100).toFixed(1)) : null,
-    threebet: parseFloat((threebet/total*100).toFixed(1)),
-    cbet: cbetOpp ? parseFloat((cbet/cbetOpp*100).toFixed(1)) : null,
-    af: 2.1, // approximé
-  };
-}
-
-function displayPlayerResult(pseudo, room, stats, handCount) {
-  // Pseudo + source
-  document.getElementById('res-pseudo').textContent = pseudo;
-  document.getElementById('res-source').textContent = room.charAt(0).toUpperCase()+room.slice(1) +
-    ' · ' + (handCount ? handCount + ' mains communautaires' : 'Aucune donnée locale');
-
-  const roomLabels = { winamax:'Winamax', pokerstars:'PokerStars', betclic:'Betclic', pmu:'PMU Poker' };
-
-  // Profil badge
-  const badge = document.getElementById('res-profile-badge');
-  if (stats) {
-    let profil = '😐 Régulier'; let bcolor = '#7A90B8';
-    if (stats.vpip < 16) { profil = '🐢 Nit'; bcolor = '#7A90B8'; }
-    else if (stats.vpip < 26 && stats.pfr > 12) { profil = '🦁 TAG'; bcolor = '#34D399'; }
-    else if (stats.vpip > 35 && stats.pfr < 12) { profil = '🐟 Fish'; bcolor = '#FF4560'; }
-    else if (stats.vpip > 28 && stats.pfr > 18) { profil = '🔥 LAG'; bcolor = '#FB923C'; }
-    badge.textContent = profil;
-    badge.style.background = 'rgba(0,0,0,0.3)';
-    badge.style.color = bcolor;
-    badge.style.border = '1px solid ' + bcolor;
-  } else {
-    badge.textContent = '❓ Inconnu';
-    badge.style.background = 'var(--bg3)';
-    badge.style.color = 'var(--text3)';
-    badge.style.border = '1px solid var(--border2)';
-  }
-
-  // KPIs principaux
-  const profitEl = document.getElementById('res-profit');
-  const itmEl    = document.getElementById('res-itm');
-  const roiEl    = document.getElementById('res-roi');
-  const profitSub = document.getElementById('res-profit-sub');
-
-  if (stats) {
-    // Profit en bb (estimation €: bb × 0.02 pour NL2)
-    const profitColor = stats.totalBB >= 0 ? 'var(--green)' : 'var(--red)';
-    profitEl.textContent = (stats.totalBB >= 0 ? '+' : '') + stats.totalBB + ' bb';
-    profitEl.style.color = profitColor;
-    profitSub.textContent = 'gain total en bb';
-
-    itmEl.textContent = stats.itm !== null ? stats.itm + '%' : '—';
-    itmEl.style.color = stats.itm > 30 ? 'var(--green)' : stats.itm > 20 ? 'var(--gold)' : 'var(--red)';
-
-    roiEl.textContent = (stats.winrate >= 0 ? '+' : '') + stats.winrate;
-    roiEl.style.color = stats.winrate >= 0 ? 'var(--green)' : 'var(--red)';
-
-    // Stats détaillées
-    const grid = document.getElementById('res-stats-grid');
-    const statDefs = [
-      ['VPIP', stats.vpip + '%', stats.vpip < 25 ? '#34D399' : stats.vpip < 35 ? '#FFB800' : '#FF4560', 'Mains jouées'],
-      ['PFR',  stats.pfr  + '%', stats.pfr < 10 ? '#FF4560' : stats.pfr < 22 ? '#34D399' : '#FFB800', 'Raise preflop'],
-      ['3-BET', stats.threebet + '%', stats.threebet < 4 ? '#3D9EFF' : stats.threebet < 9 ? '#34D399' : '#FF4560', '3-bet %'],
-      ['C-BET', stats.cbet !== null ? stats.cbet + '%' : '—', '#7A90B8', 'Continuation bet'],
-      ['WTSD', stats.sawFlop + '%', '#7A90B8', 'Saw flop %'],
-      ['Win%', stats.winPct + '%', stats.winPct > 50 ? '#34D399' : '#FF4560', 'Taux de victoire'],
-      ['Mains', stats.hands, '#EEF2FF', 'Mains dans la base'],
-      ['AF', stats.af, '#7A90B8', 'Aggression factor'],
-    ];
-    grid.innerHTML = statDefs.map(([lbl, val, color, desc]) =>
-      '<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:8px;text-align:center" title="' + desc + '">' +
-        '<div style="font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">' + lbl + '</div>' +
-        '<div style="font-size:17px;font-weight:700;font-family:var(--font-mono);color:' + color + '">' + val + '</div>' +
-      '</div>'
-    ).join('');
-  } else {
-    profitEl.textContent = '—'; profitEl.style.color = 'var(--text3)';
-    itmEl.textContent = '—';    itmEl.style.color = 'var(--text3)';
-    roiEl.textContent = '—';   roiEl.style.color = 'var(--text3)';
-    document.getElementById('res-stats-grid').innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text3);font-size:12px">' +
-      '🔍 Aucune donnée locale — importez vos mains ou vérifiez le pseudo</div>';
-  }
-
-  // Liens externes
-  const roomNet = { winamax:'Winamax', pokerstars:'PokerStars', betclic:'Betclic', pmu:'PMU' };
-  const enc = encodeURIComponent(pseudo);
-  const links = [
-    { label:'🦈 SharkScope', url:'https://fr.sharkscope.com/#Player-Statistics//networks/' + (roomNet[room]||'Winamax') + '/players/' + enc, color:'#D4AF37', bg:'rgba(212,175,55,.1)', border:'rgba(212,175,55,.3)' },
-    { label:'📊 Pokstats',   url:'https://www.pokstats.com/player?name=' + enc + '&site=' + room, color:'#3D9EFF', bg:'rgba(61,158,255,.1)', border:'rgba(61,158,255,.3)' },
-  ];
-  if (room === 'winamax') {
-    links.push({ label:'🃏 Winamax', url:'https://www.winamax.fr/guns-and-glory/' + enc, color:'#E8341C', bg:'rgba(232,52,28,.1)', border:'rgba(232,52,28,.3)' });
-  }
-  document.getElementById('res-ext-links').innerHTML = links.map(l =>
-    '<a href="' + l.url + '" target="_blank" rel="noopener" style="padding:6px 12px;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px;background:' + l.bg + ';border:1px solid ' + l.border + ';color:' + l.color + '">' + l.label + '</a>'
-  ).join('');
-}
-
-function savePlayerNote() {
-  const note = document.getElementById('player-note-text').value.trim();
-  const pseudo = document.getElementById('player-search-pseudo').value.trim();
-  if (!note || !pseudo) return;
-
-  // Sauvegarde locale (si pas de backend connecté)
-  const key = 'pokerpro_note_' + pseudo.toLowerCase();
-  const data = { note, tag: currentPlayerTag, date: new Date().toLocaleDateString('fr-FR') };
-  try { localStorage.setItem(key, JSON.stringify(data)); } catch(e) {}
-
-  const btn = document.getElementById('save-note-btn');
-  btn.textContent = '✅ Note sauvegardée !';
-  btn.style.background = 'rgba(52,211,153,0.2)';
-  btn.style.color = 'var(--green)';
-  btn.style.border = '1px solid rgba(52,211,153,0.3)';
-  setTimeout(() => {
-    btn.textContent = '💾 Sauvegarder la note';
-    btn.style.background = 'var(--jade)';
-    btn.style.color = '#06090F';
-    btn.style.border = 'none';
-  }, 2000);
-}
-
 
 // ============================================================
 // PARSER MULTI-FORMAT
