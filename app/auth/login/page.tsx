@@ -107,7 +107,7 @@ export default function LoginPage() {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      padding: '32px 16px',
+      padding: '60px 16px 40px',
       fontFamily: "'Inter', sans-serif",
     }}>
 
@@ -219,7 +219,7 @@ export default function LoginPage() {
         ))}
       </div>
 
-      <div style={{ marginTop:20, fontSize:10, color:'#3A4E6A', textAlign:'center' }}>
+      <div style={{ marginTop:24, fontSize:12, color:'#7A90B8', textAlign:'center', padding:'12px 16px', background:'rgba(255,255,255,0.03)', border:'1px solid #0F1E35', borderRadius:8, maxWidth:500 }}>
         🔒 Connexion sécurisée · Données chiffrées · supportpokerpro@gmail.com
       </div>
     </div>
