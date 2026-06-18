@@ -3139,7 +3139,7 @@ function displayPlayerResult(pseudo, room, stats, handCount) {
   const enc = encodeURIComponent(pseudo);
   const links = [
     { label:'🦈 SharkScope', url:'https://fr.sharkscope.com/#Player-Statistics//networks/' + (roomNet[room]||'Winamax') + '/players/' + enc, color:'#D4AF37', bg:'rgba(212,175,55,.1)', border:'rgba(212,175,55,.3)' },
-    { label:'📊 Pokstats',   url:'https://www.pokstats.com/player?name=' + enc + '&site=' + room, color:'#3D9EFF', bg:'rgba(61,158,255,.1)', border:'rgba(61,158,255,.3)' },
+    { label:'📊 Pokstats',   url:'https://www.pokstats.com/' + enc + '&site=' + room, color:'#3D9EFF', bg:'rgba(61,158,255,.1)', border:'rgba(61,158,255,.3)' },
   ];
   if (room === 'winamax') {
     links.push({ label:'🃏 Winamax', url:'https://www.winamax.fr/guns-and-glory/' + enc, color:'#E8341C', bg:'rgba(232,52,28,.1)', border:'rgba(232,52,28,.3)' });
